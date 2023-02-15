@@ -1,28 +1,23 @@
-###1 KÜTÜPHANELER
+#KÜTÜPHANELER
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# r2'nin 1'e yaklaşması doğruluğunu arttırır ama decision tree gibi
-#tahminden ziyade ezbere dayalı regressyonların tuzağına düşer.
-from sklearn.metrics import r2_score
 
-#Hangi sütunların gerekli olduğunu belirlemek için
-# P value larını hesaplamak gerekir
-import statsmodels.api as sm
-
-###2 VERİ YÜKLEME
+#VERİ
 veriler = pd.read_csv('cinsiyet_boy_kilo_yas.csv')
-
-
-#DATAFRAME DİLİMLEME(SLICE)
 x = veriler.iloc[:,1:4]
 y = veriler.iloc[:,4:]
-
-#NUMPY DİZİ (ARRAY) DÖNÜŞÜMÜ
 X=x.values
 Y=y.values
 
+
+#DataFrame
+sonuc= pd.DataFrame(data=Y, index=range(22), columns=["cinsiyet"])
+s=pd.concat([veriler.iloc[:,1:4],sonuc],axis=1)
+
+
+#Numeric
 from sklearn import preprocessing
 le = preprocessing.LabelEncoder()
 Y[:,0] = le.fit_transform(veriler.iloc[:,-1])
@@ -30,14 +25,18 @@ ohe = preprocessing.OneHotEncoder()
 Y = ohe.fit_transform(Y).toarray()
 Y=Y[:,0]
 
-sonuc= pd.DataFrame(data=Y, index=range(22), columns=["cinsiyet"])
+#Sadece corr fonksiyonuna bakaraktan hangi bağımlı değişkenler hangi bağımsız  
+# değişkenlere nasıl etki ediyor öğrenebiliriz.
+print(s.corr())
 
-s=pd.concat([veriler.iloc[:,1:4],sonuc],axis=1)
 
-#print(s.corr())
-###3 TAHMİN (MODELLER)
+###TAHMİN (MODELLER)
 
-#3.1 LINEAR REGRESSION
+#Hangi sütunların gerekli olduğunu belirlemek için
+# P value larını hesaplamak gerekir
+import statsmodels.api as sm
+
+#LINEAR REGRESSION
 from sklearn.linear_model import LinearRegression
 lr1=LinearRegression()
 lr1.fit(X,Y)
@@ -47,10 +46,7 @@ model1 = sm.OLS(lr1.predict(X),X)
 print(model1.fit().summary())
 
 
-
-
-
-#3.2 POLYNOMIAL REGRESSION
+#POLYNOMIAL REGRESSION
 from sklearn.preprocessing import PolynomialFeatures
 pr=PolynomialFeatures(degree=2)
 x_poly = pr.fit_transform(X)
@@ -71,7 +67,7 @@ model22 = sm.OLS(lr3.predict(pr3.fit_transform(X)),X)
 print(model22.fit().summary())
 
 
-#3.3 SUPPORT VECTOR REGRESSION
+#SUPPORT VECTOR REGRESSION
 from sklearn.preprocessing import StandardScaler
 sc1=StandardScaler()
 x_olcekli = sc1.fit_transform(X)
@@ -86,7 +82,7 @@ model3 = sm.OLS(svr_reg.predict(x_olcekli),x_olcekli)
 print(model3.fit().summary())
 
 
-#3.4 DECISION TREE
+#DECISION TREE
 from sklearn.tree import DecisionTreeRegressor
 r_dt = DecisionTreeRegressor(random_state=0)
 r_dt.fit(X,Y)
@@ -96,7 +92,7 @@ model4 = sm.OLS(r_dt.predict(X),X)
 print(model4.fit().summary())
 
 
-#3.5 RANDOM FOREST REGRESSION
+#RANDOM FOREST REGRESSION
 from sklearn.ensemble import RandomForestRegressor
 # n_estimators -> kaç tane decision tree kullanacağını verir.
 # En doğru sonuç için arttırmak çözüm değildir arttırınca değerler 
@@ -109,7 +105,23 @@ model5 = sm.OLS(rf_reg.predict(X),X)
 print(model5.fit().summary())
 
 
+#LOGISTIC REGRESSION
+#Daha çok sınıflandırmada kullanıldığı için açıklamayı sınıflandırma bölümünde
+# yapacağım.
+from sklearn.linear_model import LogisticRegression
+logr = LogisticRegression(random_state=0)
+logr.fit(X,Y)
+
+print("LOGISTIC REGRESSION OLS")
+model6 = sm.OLS(logr.predict(X),X)
+print(model4.fit().summary())
+
+
 ##R2 KIYASLAMA
+# r2'nin 1'e yaklaşması doğruluğunu arttırır ama decision tree gibi
+#tahminden ziyade ezbere dayalı regressyonların tuzağına düşer.
+from sklearn.metrics import r2_score
+
 print("R2 ÖZET ")
 print("------------------------")
 print("LINEAR REGRESSION")
@@ -132,18 +144,25 @@ print("------------------------")
 print("RANDOM FOREST REGRESSION")
 print("r2:",r2_score(Y,rf_reg.predict(X)))
 
+print("------------------------")
+print("LOGISTIC REGRESSION")
+print("r2:",r2_score(Y,logr.predict(X)))
+print("-"*50)
+
 liste=[168,69,20]
-print(lr1.predict(np.array([liste])))
-print(lr2.predict(pr.fit_transform(np.array([liste]))))
-print(lr3.predict(pr3.fit_transform(np.array([liste]))))
-print(svr_reg.predict(np.array([liste])))
-print(r_dt.predict([liste]))
-print(rf_reg.predict([liste]))
-print((lr1.predict(np.array([liste]))+rf_reg.predict([liste]))/2)
-from sklearn.linear_model import LogisticRegression
-logr = LogisticRegression(random_state=0)
-logr.fit(X,Y)
+print("LINEAR REGRESSION",lr1.predict(np.array([liste])))
 
-y_pred = logr.predict(X)
+print("POLYNOMIAL REGRESSION 2 degree",lr2.predict(pr.fit_transform(np.array([liste]))))
 
-print(y_pred)
+print("POLYNOMIAL REGRESSION 4 degree",lr3.predict(pr3.fit_transform(np.array([liste]))))
+
+print("SUPPORT VECTOR REGRESSION",svr_reg.predict(np.array([liste])))
+
+print("DECISION TREE",r_dt.predict([liste]))
+
+print("RANDOM FOREST REGRESSION",rf_reg.predict([liste]))
+
+print("LOGISTIC REGRESSION",logr.predict([liste]))
+
+
+
