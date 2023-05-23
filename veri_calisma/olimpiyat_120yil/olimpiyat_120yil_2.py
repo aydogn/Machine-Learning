@@ -131,7 +131,7 @@ veri_gecici = veri.copy()
 veri_gecici = pd.get_dummies(veri_gecici,columns=['madalya']) 
 #print(veri_gecici.head(2))    
 """
-"""    
+"""
 #takim stünu altında madalya verilerinin toplamı (altın madalyaya göre sıralı)
 print(veri_gecici[["takim","madalya_Bronze",
              "madalya_Silver",

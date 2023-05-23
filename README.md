@@ -1,2 +1,2 @@
-# Data-Scientist-and-Machine-Learning
+# Data-Science-and-Machine-Learning
 

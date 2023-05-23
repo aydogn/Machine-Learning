@@ -175,10 +175,11 @@ g.map_diag(sns.histplot, kde=True)#diagonal tarafına yerleştirilenler
 
 
 #Sayma Grafiği
+"""
 sns.countplot(x='sehir', data=veri)
 plt.xticks(rotation=90)
 plt.show()
-
+"""
 
 
 
