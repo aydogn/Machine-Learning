@@ -24,14 +24,16 @@ lr1.fit(X,Y)
 # için hatası yüksek tahminlerde bulunabilir.
 
 ####POLYNOMİAL REGRESYON
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+
 pr=PolynomialFeatures(degree=2)
 x_poly = pr.fit_transform(X)
 lr2=LinearRegression()
 lr2.fit(x_poly,y)
 
 
-#Derece arttıkça daha doğru değerler olabilir ama overfitting görüle debilinir.
+#Derece arttıkça daha doğru değerler olabilir ama overfitting görüledebilinir.
 pr3=PolynomialFeatures(degree=4)
 x_poly3 = pr3.fit_transform(X)
 lr3=LinearRegression()
@@ -41,14 +43,14 @@ lr3.fit(x_poly3,y)
 #GÖRSELLEŞTİRME
 plt.scatter(X,Y,color="red")
 plt.plot(x,lr1.predict(X),color="blue")
-plt.show()
+# plt.show()
 
-plt.scatter(X,Y,color="red")
-plt.plot(x,lr2.predict(x_poly),color="blue")
-plt.show()
+# plt.scatter(X,Y,color="red")
+plt.plot(x,lr2.predict(x_poly),color="green")
+# plt.show()
 
-plt.scatter(X,Y,color="red")
-plt.plot(x,lr3.predict(x_poly3),color="blue")
+# plt.scatter(X,Y,color="red")
+plt.plot(x,lr3.predict(x_poly3),color="red")
 plt.show()
 
 

@@ -1,16 +1,21 @@
+#Veri seti: ülkelere göre boy,kilo,yaş,cinsiyet verisi
+
 #KÜTÜPHANELER
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 #VERİ
-veriler = pd.read_csv('veriler.csv')
-ulke = veriler.iloc[:,0:1].values
+veriler = pd.read_csv('veriler.csv', sep=",")#sep=";" csv de ; varsa kullan
+ulke = veriler.iloc[:,0:1].values #nominal değerden numeric'e çevrilmesi lazım
 kalan = veriler.iloc[:,1:4].values
 c = veriler.iloc[:,-1:].values
-cinsiyet = veriler.iloc[:,-1].values
 
 
+
+
+##########################Bu kısım ek bilgiler içerir##########################
+#Öncelikle ülkelerin 1 ve 0 lara ayıralım
 #nominal->numeric
 from sklearn import preprocessing
 le = preprocessing.LabelEncoder()
@@ -18,13 +23,12 @@ ulke[:,0] = le.fit_transform(veriler.iloc[:,0])
 ohe = preprocessing.OneHotEncoder()
 ulke = ohe.fit_transform(ulke).toarray()
 
-
 le = preprocessing.LabelEncoder()
 c[:,-1] = le.fit_transform(veriler.iloc[:,-1])
 ohe = preprocessing.OneHotEncoder()
 c = ohe.fit_transform(c).toarray()
 
-
+#Ülkeler 1 ve 0 lara ayrıldıktan sonra birleştirelim
 #Data frame dönüşümü
 sonuc = pd.DataFrame(data=ulke, index=range(22), columns=["fr","tr","us"])
 sonuc2 = pd.DataFrame(data=kalan, index=range(22), columns = ["boy","kilo","yas"])
@@ -34,12 +38,11 @@ s=pd.concat([sonuc,sonuc2],axis=1)
 s2=pd.concat([s,sonuc3],axis=1)
 
 
+
 #Verilerin eğitim ve test için bölünmesi
 from sklearn.model_selection import train_test_split
-x1_train, x1_test, y1_train, y1_test = train_test_split(s,sonuc3,test_size=0.33,random_state=0)
-
-
-
+x1_train, x1_test, y1_train, y1_test = train_test_split(s,sonuc3,test_size=0.33,
+                                                        random_state=0)
 #Çoklu lineer regresyon birden fazla değişkene bağlı olan ve bağımlı
 # değişkeni doğrusal bir artış gösteren verisetlerindeki değişkenlerin
 # arasındaki bağıntıyı bulmaya yarayan yöntemdir.
@@ -55,15 +58,23 @@ boy = s2.iloc[:,3:4].values
 sol = s2.iloc[:,:3]
 sag = s2.iloc[:,4:]
 veri = pd.concat([sol,sag],axis=1)
+###############################################################################
+
+
 
 #boy tahmini için eğitim ve test
-x2_train, x2_test, y2_train, y2_test = train_test_split(veri,boy,test_size=0.33,random_state=0)
+x2_train, x2_test, y2_train, y2_test = train_test_split(veriler.iloc[:,2:4],
+                                                        boy,test_size=0.33,random_state=0)
 
 #boy tahmini için Lineer Regresyon (çoklu)
 r2 = LinearRegression()
 r2.fit(x2_train,y2_train)
 y2_pred = r2.predict(x2_test)
 
+kilo_girdisi=60
+yas_girdisi=21
+sonuc = r2.predict(np.array([[kilo_girdisi,yas_girdisi]])) #52. ayın tahminini yaptık
+print(f"{kilo_girdisi} kilolu {yas_girdisi} yaşındaki {sonuc[0][0]: .0f} boyludur.")
 
 #OLS sonuçları 
 import statsmodels.api as sm
